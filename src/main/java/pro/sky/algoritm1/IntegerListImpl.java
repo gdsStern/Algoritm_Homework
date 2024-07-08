@@ -9,7 +9,7 @@ import java.util.Objects;
 
 public class IntegerListImpl implements IntegerList {
     private final static int DEFAULT_CAPACITY = 10;
-    private final Integer[] storage;
+    private Integer[] storage;
     private int size;
 
     private static void sortInsertion(Integer[] arr) {
@@ -22,6 +22,37 @@ public class IntegerListImpl implements IntegerList {
             }
             arr[j] = temp;
         }
+    }
+
+    public static void quickSort(Integer[] arr, int begin, int end) {
+        if (begin < end) {
+            int partitionIndex = partition(arr, begin, end);
+
+            quickSort(arr, begin, partitionIndex - 1);
+            quickSort(arr, partitionIndex + 1, end);
+        }
+    }
+
+    private static int partition(Integer[] arr, int begin, int end) {
+        int pivot = arr[end];
+        int i = (begin - 1);
+
+        for (int j = begin; j < end; j++) {
+            if (arr[j] <= pivot) {
+                i++;
+
+                swapElements(arr, i, j);
+            }
+        }
+
+        swapElements(arr, i + 1, end);
+        return i + 1;
+    }
+
+    private static void swapElements(Integer[] arr, int left, int right) {
+        int temp = arr[left];
+        arr[left] = arr[right];
+        arr[right] = temp;
     }
 
     private static boolean contains(Integer[] arr, Integer element) {
@@ -44,6 +75,12 @@ public class IntegerListImpl implements IntegerList {
         return false;
     }
 
+    private void grow() {
+        storage = Arrays.copyOf(storage, storage.length *3 /2);
+    }
+
+
+
     public IntegerListImpl() {
         this(DEFAULT_CAPACITY);
     }
@@ -65,7 +102,7 @@ public class IntegerListImpl implements IntegerList {
     public Integer add(int index, Integer item) {
         checkIsNull(item);
         if (size == storage.length) {
-            throw new IncorrectIndexException();
+            grow();
         }
         checkIndex(index, false);
         if (index < size) {
@@ -115,7 +152,7 @@ public class IntegerListImpl implements IntegerList {
     @Override
     public boolean contains(Integer item) {
         Integer[] copy = toArray();
-        sortInsertion(copy);
+        quickSort(copy,0, size);
         return contains(copy, item);
     }
 
